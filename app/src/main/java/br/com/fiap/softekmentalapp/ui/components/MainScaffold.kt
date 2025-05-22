@@ -32,8 +32,6 @@ fun MainScaffold(
         DrawerItem("Suporte", Icons.Filled.Help, AppScreen.Support)
     )
 
-
-
     var drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 

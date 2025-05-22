@@ -1,6 +1,7 @@
 package br.com.fiap.softekmentalapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,13 +16,16 @@ import br.com.fiap.softekmentalapp.ui.screens.SupportScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
+    val coroutineScope = rememberCoroutineScope()
+
     NavHost(
         navController = navController,
         startDestination = AppScreen.Checkin.route
     ) {
         composable(AppScreen.Checkin.route) {
             MainScaffold(navController) {
-                CheckinScreen(navController)
+                CheckinScreen(navController = navController,
+                coroutineScope = coroutineScope)
             }
         }
         composable(AppScreen.RiskAssessment.route) {

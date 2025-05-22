@@ -11,10 +11,15 @@ import androidx.navigation.NavController
 import br.com.fiap.softekmentalapp.navigation.AppScreen
 import br.com.fiap.softekmentalapp.repository.CheckinRepository
 import br.com.fiap.softekmentalapp.model.Checkin
-
+import br.com.fiap.softekmentalapp.model.Emotion
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun CheckinScreen(navController: NavController) {
+fun CheckinScreen(
+    navController: NavController,
+    coroutineScope: CoroutineScope
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -24,33 +29,41 @@ fun CheckinScreen(navController: NavController) {
     ) {
         Text("Como você está se sentindo hoje?", fontSize = 22.sp)
         Spacer(modifier = Modifier.height(24.dp))
+
         Button(onClick = {
-            CheckinRepository.addCheckin(Checkin("feliz"))
-            navController.navigate(AppScreen.Feedback.createRoute("feliz"))
+            coroutineScope.launch {
+                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Happy.id.toString()))
+                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Happy.routeParam))
+            }
         }) {
             Text("Feliz")
         }
+
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = {
-            CheckinRepository.addCheckin(Checkin("triste"))
-            navController.navigate(AppScreen.Feedback.createRoute("triste"))
+            coroutineScope.launch {
+                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Sad.id.toString()))
+                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Sad.routeParam))
+            }
         }) {
             Text("Triste")
         }
+
         Spacer(modifier = Modifier.height(12.dp))
         Button(onClick = {
-            CheckinRepository.addCheckin(Checkin("ansioso"))
-            navController.navigate(AppScreen.Feedback.createRoute("ansioso"))
+            coroutineScope.launch {
+                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Anxious.id.toString()))
+                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Anxious.routeParam))
+            }
         }) {
             Text("Ansioso")
         }
-        Spacer(modifier = Modifier.height(24.dp))
 
+        Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = {
             navController.navigate(AppScreen.History.route)
         }) {
             Text("Ver Histórico")
         }
-
     }
 }
