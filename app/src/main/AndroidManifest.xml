@@ -13,10 +13,11 @@
         android:theme="@style/Theme.SoftekMentalApp"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".MentalHealthApp"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.SoftekMentalApp">
+            android:theme="@style/Theme.SoftekMentalApp"
+            tools:ignore="Instantiatable">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
