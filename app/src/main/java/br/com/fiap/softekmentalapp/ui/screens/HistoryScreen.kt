@@ -1,10 +1,7 @@
 package br.com.fiap.softekmentalapp.ui.screens
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import com.github.tehras.charts.line.LineChart
-import com.github.tehras.charts.line.LineChartData
-import com.github.tehras.charts.line.renderer.line.SolidLineDrawer
-import com.github.tehras.charts.piechart.PieChartData
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.layout.*
@@ -81,100 +78,90 @@ fun HistoryScreen(navController: NavController) {
             TopAppBar(title = { Text("Histórico") })
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(onClick = { showDatePicker = true }) {
-                    Text("Filtrar por Data")
-                }
-                Button(onClick = { selectedDate = null }) {
-                    Text("Limpar Filtro")
-                }
-                OutlinedButton(onClick = {
-                    scope.launch {
-                        CheckinRepository.clearAllCheckins()
-                        AssessmentRepository.clearAllResults()
-                        checkins = CheckinRepository.getAllCheckins()
-                        assessments = AssessmentRepository.getAllResults()
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = { showDatePicker = true }) {
+                        Text("Filtrar por Data")
                     }
-                }) {
-                    Text("Limpar Histórico")
-                }
-            }
-
-            // NOVO BLOCO ADICIONADO - Gráfico de Evolução das Avaliações
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Evolução das Avaliações", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (filteredAssessments.isNotEmpty()) {
-                LineChart(
-                    lineChartData = LineChartData(
-                        lines = listOf(
-                            LineChartData.Line(
-                                label = "Média das Avaliações",
-                                values = filteredAssessments.reversed().map {
-                                    LineChartData.Point(
-                                        value = it.score.toFloat(),
-                                        label = dayFormat.format(Date(it.timestamp))
-                                    )
-                                },
-                                color = Color.Blue,
-                                lineDrawer = SolidLineDrawer()
-                            )
-                        )
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                )
-            } else {
-                Text("Nenhum dado para exibir no gráfico.")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Check-ins Emocionais", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (filteredCheckins.isEmpty()) {
-                Text("Nenhum check-in encontrado.")
-            } else {
-                LazyColumn {
-                    items(filteredCheckins.reversed()) { checkin ->
-                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                            Text("Emoção: ${checkin.emotion.replaceFirstChar { it.uppercase() }}")
-                            Text("Data: ${dateFormat.format(Date(checkin.timestamp))}")
+                    Button(onClick = { selectedDate = null }) {
+                        Text("Limpar Filtro")
+                    }
+                    OutlinedButton(onClick = {
+                        scope.launch {
+                            CheckinRepository.clearAllCheckins()
+                            AssessmentRepository.clearAllResults()
+                            checkins = CheckinRepository.getAllCheckins()
+                            assessments = AssessmentRepository.getAllResults()
                         }
-                        Divider()
+                    }) {
+                        Text("Limpar Histórico")
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Text("Avaliações Psicossociais", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                Text("Evolução das Avaliações", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             if (filteredAssessments.isEmpty()) {
-                Text("Nenhuma avaliação encontrada.")
+                item { Text("Nenhuma avaliação encontrada.") }
             } else {
-                LazyColumn {
-                    items(filteredAssessments.reversed()) { result ->
-                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                            Text("Data: ${dateFormat.format(Date(result.timestamp))}")
-                            Text("Média: %.2f".format(result.score))
-                            Text("Classificação: ${result.classification}")
+                items(filteredAssessments.reversed()) { result ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Data: ${dateFormat.format(Date(result.timestamp))}",
+                                style = MaterialTheme.typography.bodyLarge)
+                            Text("Média: ${"%.2f".format(result.score)}",
+                                style = MaterialTheme.typography.bodyMedium)
+                            Text("Classificação: ${result.classification}",
+                                style = MaterialTheme.typography.bodyMedium)
                         }
-                        Divider()
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Check-ins Emocionais", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (filteredCheckins.isEmpty()) {
+                item { Text("Nenhum check-in encontrado.") }
+            } else {
+                items(filteredCheckins.reversed()) { checkin ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Emoção: ${checkin.emotion.replaceFirstChar { it.uppercase() }}",
+                                style = MaterialTheme.typography.bodyLarge)
+                            Text("Data: ${dateFormat.format(Date(checkin.timestamp))}",
+                                style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
     }
 }
+

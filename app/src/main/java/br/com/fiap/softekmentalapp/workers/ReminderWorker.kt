@@ -30,7 +30,7 @@ class ReminderWorker(appContext: Context, params: WorkerParameters) : CoroutineW
 
     private fun showNotification() {
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
+            .setSmallIcon(R.drawable.baseline_notifications_24)
             .setContentTitle("Lembrete de Bem-Estar")
             .setContentText("Como você está se sentindo hoje? Faça seu check-in emocional!")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
