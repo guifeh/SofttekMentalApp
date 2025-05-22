@@ -1,5 +1,10 @@
 package br.com.fiap.softekmentalapp.ui.screens
 
+import androidx.compose.ui.graphics.Color
+import com.github.tehras.charts.line.LineChart
+import com.github.tehras.charts.line.LineChartData
+import com.github.tehras.charts.line.renderer.line.SolidLineDrawer
+import com.github.tehras.charts.piechart.PieChartData
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.layout.*
@@ -11,8 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import br.com.fiap.softekmentalapp.model.AssessmentResult
+import br.com.fiap.softekmentalapp.model.Checkin
 import br.com.fiap.softekmentalapp.repository.AssessmentRepository
 import br.com.fiap.softekmentalapp.repository.CheckinRepository
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,12 +28,19 @@ import java.util.*
 @Composable
 fun HistoryScreen(navController: NavController) {
     val context = LocalContext.current
-
+    val scope = rememberCoroutineScope()
     var selectedDate by remember { mutableStateOf<Date?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var checkins by remember { mutableStateOf<List<Checkin>>(emptyList()) }
+    var assessments by remember { mutableStateOf<List<AssessmentResult>>(emptyList()) }
 
-    var checkins by remember { mutableStateOf(CheckinRepository.getAllCheckins()) }
-    var assessments by remember { mutableStateOf(AssessmentRepository.getAllResults()) }
+    // Carregar dados assincronamente
+    LaunchedEffect(Unit) {
+        scope.launch {
+            checkins = CheckinRepository.getAllCheckins()
+            assessments = AssessmentRepository.getAllResults()
+        }
+    }
 
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     val dayFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -79,25 +94,52 @@ fun HistoryScreen(navController: NavController) {
                 Button(onClick = { showDatePicker = true }) {
                     Text("Filtrar por Data")
                 }
-
-                Button(onClick = {
-                    selectedDate = null
-                }) {
+                Button(onClick = { selectedDate = null }) {
                     Text("Limpar Filtro")
                 }
-
                 OutlinedButton(onClick = {
-                    CheckinRepository.clearAllCheckins()
-                    AssessmentRepository.clearAllResults()
-                    checkins = CheckinRepository.getAllCheckins()
-                    assessments = AssessmentRepository.getAllResults()
+                    scope.launch {
+                        CheckinRepository.clearAllCheckins()
+                        AssessmentRepository.clearAllResults()
+                        checkins = CheckinRepository.getAllCheckins()
+                        assessments = AssessmentRepository.getAllResults()
+                    }
                 }) {
                     Text("Limpar Histórico")
                 }
             }
 
+            // NOVO BLOCO ADICIONADO - Gráfico de Evolução das Avaliações
             Spacer(modifier = Modifier.height(16.dp))
+            Text("Evolução das Avaliações", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
 
+            if (filteredAssessments.isNotEmpty()) {
+                LineChart(
+                    lineChartData = LineChartData(
+                        lines = listOf(
+                            LineChartData.Line(
+                                label = "Média das Avaliações",
+                                values = filteredAssessments.reversed().map {
+                                    LineChartData.Point(
+                                        value = it.score.toFloat(),
+                                        label = dayFormat.format(Date(it.timestamp))
+                                    )
+                                },
+                                color = Color.Blue,
+                                lineDrawer = SolidLineDrawer()
+                            )
+                        )
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                )
+            } else {
+                Text("Nenhum dado para exibir no gráfico.")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
             Text("Check-ins Emocionais", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -116,7 +158,6 @@ fun HistoryScreen(navController: NavController) {
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
             Text("Avaliações Psicossociais", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
