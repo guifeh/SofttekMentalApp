@@ -1,7 +1,6 @@
 package br.com.fiap.softekmentalapp.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,16 +22,24 @@ data class DrawerItem(
 @Composable
 fun MainScaffold(
     navController: NavController,
-    currentScreen: @Composable () -> Unit
+    currentScreen: @Composable () -> Unit,
+    isDarkTheme: Boolean,
+    onThemeUpdated: () -> Unit
 ) {
     val drawerItems = listOf(
         DrawerItem("Check-in Emocional", Icons.Filled.EmojiEmotions, AppScreen.Checkin),
         DrawerItem("Histórico", Icons.Filled.History, AppScreen.History),
-        DrawerItem("Avaliação de Riscos", Icons.Filled.Assignment, AppScreen.RiskAssessment),
-        DrawerItem("Suporte", Icons.Filled.Help, AppScreen.Support)
+        DrawerItem("Avaliação de Riscos", Icons.Filled.Assessment, AppScreen.RiskAssessment),
+        DrawerItem("Suporte", Icons.Filled.Help, AppScreen.Support),
+        DrawerItem("Insights", Icons.Filled.Insights, AppScreen.Insights),
+        DrawerItem(
+            if (isDarkTheme) "Tema Claro" else "Tema Escuro",
+            if (isDarkTheme) Icons.Filled.LightMode else Icons.Filled.DarkMode,
+            AppScreen.Settings
+        )
     )
 
-    var drawerState = rememberDrawerState(DrawerValue.Closed)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
@@ -46,7 +53,12 @@ fun MainScaffold(
                         selected = false,
                         icon = { Icon(item.icon, contentDescription = item.title) },
                         onClick = {
-                            navController.navigate(item.screen.route)
+                            scope.launch { drawerState.close() }
+                            if (item.title.contains("Tema")) {
+                                onThemeUpdated()
+                            } else {
+                                navController.navigate(item.screen.route)
+                            }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
@@ -63,6 +75,14 @@ fun MainScaffold(
                             scope.launch { drawerState.open() }
                         }) {
                             Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { onThemeUpdated() }) {
+                            Icon(
+                                if (isDarkTheme) Icons.Filled.LightMode else Icons.Filled.DarkMode,
+                                contentDescription = "Alternar tema"
+                            )
                         }
                     }
                 )

@@ -3,18 +3,22 @@ package br.com.fiap.softekmentalapp.workers
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import br.com.fiap.softekmentalapp.R
 
 class ReminderWorker(appContext: Context, params: WorkerParameters) : CoroutineWorker(appContext, params) {
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result {
         createNotificationChannel()
         showNotification()
         return Result.success()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,

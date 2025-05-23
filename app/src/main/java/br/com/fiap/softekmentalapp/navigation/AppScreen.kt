@@ -11,4 +11,7 @@ sealed class AppScreen(val route: String) {
     object History : AppScreen("history")
 
     object Support : AppScreen("support")
+    object Settings : AppScreen("settings")
+
+    object Insights : AppScreen("insights")
 }

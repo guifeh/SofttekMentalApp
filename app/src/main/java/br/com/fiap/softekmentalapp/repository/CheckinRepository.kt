@@ -29,4 +29,10 @@ object CheckinRepository {
             checkinDao.clearAllCheckins()
         }
     }
+
+    suspend fun getCheckinStats(): Map<String, Int> {
+        val checkins = checkinDao.getAllCheckins()
+        return checkins.groupingBy { it.emotion }.eachCount()
+    }
+
 }
