@@ -10,96 +10,84 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import br.com.fiap.softekmentalapp.ui.components.MainScaffold
 import br.com.fiap.softekmentalapp.viewmodel.InsightsViewModel
 
 @Composable
 fun InsightsScreen(
-    navController: NavController,
-    viewModel: InsightsViewModel,
-    isDarkTheme: Boolean,
-    onThemeUpdated: () -> Unit
+    viewModel: InsightsViewModel
 ) {
-    MainScaffold(
-        navController = navController,
-        currentScreen = {
-            val stats by viewModel.stats.collectAsState()
+    val stats by viewModel.stats.collectAsState()
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFFE3F2FD), Color(0xFF90CAF9))
-                        )
-                    )
-                    .padding(16.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Seus Insights",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFFE3F2FD), Color(0xFF90CAF9))
+                )
+            )
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Seus Insights",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                    if (stats.isNotEmpty()) {
-                        stats.forEach { (emotion, count) ->
-                            Card(
+            if (stats.isNotEmpty()) {
+                stats.forEach { (emotion, count) ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = emotion,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                ),
-                                elevation = CardDefaults.cardElevation(4.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = emotion,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.weight(1f)
+                                    .height(20.dp)
+                                    .width((count * 20).coerceAtMost(200).dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.primary,
+                                        RoundedCornerShape(10.dp)
                                     )
-                                    Box(
-                                        modifier = Modifier
-                                            .height(20.dp)
-                                            .width((count * 20).coerceAtMost(200).dp)
-                                            .background(
-                                                MaterialTheme.colorScheme.primary,
-                                                RoundedCornerShape(10.dp)
-                                            )
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = "$count",
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "$count",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
-                    } else {
-                        Text(
-                            text = "Nenhum check-in registrado ainda.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
                     }
                 }
+            } else {
+                Text(
+                    text = "Nenhum check-in registrado ainda.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
-        },
-        isDarkTheme = isDarkTheme,
-        onThemeUpdated = onThemeUpdated
-    )
+        }
+    }
 }

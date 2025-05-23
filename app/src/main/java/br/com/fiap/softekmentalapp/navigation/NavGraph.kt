@@ -76,9 +76,6 @@ fun AppNavGraph(
             MainScaffold(
                 navController = navController,
                 currentScreen = { InsightsScreen(viewModel = InsightsViewModel(CheckinRepository),
-                        navController = navController,
-                        isDarkTheme = isDarkTheme,
-                        onThemeUpdated = onThemeUpdated
                     )
                 },
                 isDarkTheme = isDarkTheme,
