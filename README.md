@@ -54,7 +54,7 @@ Clone o repositório:
 bash
 Copiar
 Editar
-git clone https://github.com/seu-usuario/softek-mental-app.git
+git clone https://github.com/seu-usuario/SofttekMentalApp.git
 Abra no Android Studio.
 
 Execute o projeto em um emulador ou dispositivo Android.
