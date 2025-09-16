@@ -1,20 +1,32 @@
 package br.com.fiap.softekmentalapp.repository
 
-import androidx.compose.runtime.mutableStateListOf
+import android.content.Context
 import br.com.fiap.softekmentalapp.model.Checkin
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object CheckinRepository {
-    private val checkins = mutableStateListOf<Checkin>()
+    private lateinit var checkinDao: CheckinDao
 
-    fun addCheckin(checkin: Checkin) {
-        checkins.add(checkin)
+    fun initialize(context: Context) {
+        checkinDao = AppDatabase.getDatabase(context).checkinDao()
     }
 
-    fun getAllCheckins(): List<Checkin> {
-        return checkins
+    suspend fun addCheckin(checkin: Checkin) {
+        withContext(Dispatchers.IO) {
+            checkinDao.insert(checkin)
+        }
     }
 
-    fun clearAllCheckins() {
-        checkins.clear()
+    suspend fun getAllCheckins(): List<Checkin> {
+        return withContext(Dispatchers.IO) {
+            checkinDao.getAllCheckins()
+        }
+    }
+
+    suspend fun clearAllCheckins() {
+        withContext(Dispatchers.IO) {
+            checkinDao.clearAllCheckins()
+        }
     }
 }

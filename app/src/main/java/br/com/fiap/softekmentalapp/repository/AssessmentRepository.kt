@@ -1,19 +1,32 @@
 package br.com.fiap.softekmentalapp.repository
 
+import android.content.Context
 import br.com.fiap.softekmentalapp.model.AssessmentResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object AssessmentRepository {
-    private val results = mutableListOf<AssessmentResult>()
+    private lateinit var assessmentDao: AssessmentDao
 
-    fun addResult(result: AssessmentResult) {
-        results.add(result)
+    fun initialize(context: Context) {
+        assessmentDao = AppDatabase.getDatabase(context).assessmentDao()
     }
 
-    fun getAllResults(): List<AssessmentResult> {
-        return results
+    suspend fun addResult(result: AssessmentResult) {
+        withContext(Dispatchers.IO) {
+            assessmentDao.insert(result)
+        }
     }
 
-    fun clearAllResults() {
-        results.clear()
+    suspend fun getAllResults(): List<AssessmentResult> {
+        return withContext(Dispatchers.IO) {
+            assessmentDao.getAllResults()
+        }
+    }
+
+    suspend fun clearAllResults() {
+        withContext(Dispatchers.IO) {
+            assessmentDao.clearAllResults()
+        }
     }
 }
