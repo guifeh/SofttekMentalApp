@@ -1,6 +1,5 @@
 package br.com.fiap.softekmentalapp.viewmodel
 
-import android.provider.ContactsContract.CommonDataKinds.Email
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.fiap.softekmentalapp.repository.AuthRepository

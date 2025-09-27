@@ -9,8 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import br.com.fiap.softekmentalapp.model.AssessmentResult
-import br.com.fiap.softekmentalapp.repository.AssessmentRepository
 import kotlinx.coroutines.launch
 
 data class Question(val id: Int, val text: String)
@@ -109,16 +107,6 @@ fun RiskAssessmentScreen(navController: NavController) {
                                         average <= 3.5 -> "Risco Moderado. Fique atento e busque apoio se necessário."
                                         else -> "Risco Alto. Recomendamos procurar ajuda especializada."
                                     }
-
-                                    AssessmentRepository.addResult(
-                                        AssessmentResult(
-                                            timestamp = System.currentTimeMillis(),
-                                            responses = responses.toMap(),
-                                            score = average,
-                                            classification = classification
-                                        )
-                                    )
-
                                     resultText = classification
                                 } catch (e: Exception) {
                                     resultText = "Erro ao salvar: ${e.localizedMessage}"

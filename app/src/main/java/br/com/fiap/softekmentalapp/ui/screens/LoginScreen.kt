@@ -7,14 +7,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.com.fiap.softekmentalapp.repository.AuthRepository
 import br.com.fiap.softekmentalapp.viewmodel.AuthState
 import br.com.fiap.softekmentalapp.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit,
-    viewModel: AuthViewModel = viewModel()
-) {
+fun LoginScreen(authRepository: AuthRepository, onLoginSuccess: () -> Unit)
+ {
+    val viewModel: AuthViewModel = viewModel()
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 

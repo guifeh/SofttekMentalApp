@@ -31,9 +31,15 @@ class AuthRepository {
 
     private val api = retrofit.create(AuthApi::class.java)
 
+    private var token: String? = null
+
     suspend fun login(email: String, password: String): LoginResponse {
-        return withContext(Dispatchers.IO) {
+        val response = withContext(Dispatchers.IO) {
             api.login(LoginRequest(email, password))
         }
+        token = response.accessToken // 🔑 guarda o token
+        return response
     }
+
+    fun getToken(): String? = token
 }

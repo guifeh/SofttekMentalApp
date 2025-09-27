@@ -17,16 +17,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import br.com.fiap.softekmentalapp.navigation.AppScreen
-import br.com.fiap.softekmentalapp.repository.CheckinRepository
-import br.com.fiap.softekmentalapp.model.Checkin
-import br.com.fiap.softekmentalapp.model.Emotion
+import br.com.fiap.softekmentalapp.viewmodel.CheckinViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
 fun CheckinScreen(
     navController: NavController,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    viewModel: CheckinViewModel
 ) {
     Column(
         modifier = Modifier
@@ -48,8 +47,8 @@ fun CheckinScreen(
             icon = Icons.Default.Mood
         ) {
             coroutineScope.launch {
-                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Happy.id.toString()))
-                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Happy.routeParam))
+                viewModel.addCheckin("happy")
+                navController.navigate(AppScreen.Feedback.createRoute("happy"))
             }
         }
 
@@ -59,8 +58,8 @@ fun CheckinScreen(
             icon = Icons.Default.MoodBad
         ) {
             coroutineScope.launch {
-                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Sad.id.toString()))
-                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Sad.routeParam))
+                viewModel.addCheckin("sad")
+                navController.navigate(AppScreen.Feedback.createRoute("sad"))
             }
         }
 
@@ -70,8 +69,8 @@ fun CheckinScreen(
             icon = Icons.Default.SentimentVeryDissatisfied
         ) {
             coroutineScope.launch {
-                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Anxious.id.toString()))
-                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Anxious.routeParam))
+                viewModel.addCheckin("anxious")
+                navController.navigate(AppScreen.Feedback.createRoute("anxious"))
             }
         }
 

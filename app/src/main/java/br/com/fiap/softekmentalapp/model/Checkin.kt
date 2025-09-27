@@ -1,11 +1,11 @@
 package br.com.fiap.softekmentalapp.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@Entity(tableName = "checkins")
+@Serializable
 data class Checkin(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val id: String? = null,
     val emotion: String,
-    val timestamp: Long = System.currentTimeMillis()
+    @SerialName("createdAt") val timestamp: Long = System.currentTimeMillis()
 )
