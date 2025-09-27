@@ -21,7 +21,7 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppScreen.Checkin.route
+        startDestination = "login"
     ) {
         composable(AppScreen.Checkin.route) {
             MainScaffold(
@@ -81,6 +81,14 @@ fun AppNavGraph(
                 isDarkTheme = isDarkTheme,
                 onThemeUpdated = onThemeUpdated
             )
+        }
+
+        composable("login") {
+            LoginScreen(onLoginSuccess = {
+                navController.navigate("checkin") {
+                    popUpTo("login") { inclusive = true }
+                }
+            })
         }
     }
 }
