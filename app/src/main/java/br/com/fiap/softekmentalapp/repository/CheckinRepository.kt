@@ -1,25 +1,42 @@
 package br.com.fiap.softekmentalapp.repository
 
-import br.com.fiap.softekmentalapp.model.Checkin
-import br.com.fiap.softekmentalapp.model.CheckinSummary
-import br.com.fiap.softekmentalapp.network.CheckinApiService
+import br.com.fiap.softekmentalapp.model.CheckinRequest
+import br.com.fiap.softekmentalapp.model.CheckinResponse
+import br.com.fiap.softekmentalapp.model.CheckinSummaryResponse
+import br.com.fiap.softekmentalapp.network.RetrofitInstance
+import br.com.fiap.softekmentalapp.network.UserApi
 
-class CheckinRepository(
-    private val api: CheckinApiService,
-    private val tokenProvider: () -> String?
-){
-    suspend fun addCheckin(checkin: Checkin): Checkin{
-        val token = "Bearer ${tokenProvider()}"
-        return api.createCheckin(token,checkin)
+class CheckinRepository {
+    private val api = RetrofitInstance.checkinApi
+
+    suspend fun createCheckin(token: String, request: CheckinRequest): CheckinResponse{
+        return api.createCheckin("Bearer $token", request)
     }
 
-    suspend fun getAllCheckins():List<Checkin>{
-        val token = "Bearer ${tokenProvider()}"
-        return api.getCheckins(token)
+    suspend fun getCheckins(token: String): List<CheckinResponse>{
+        return api.getCheckins("Bearer $token")
     }
 
-    suspend fun getCheckinSummary(): CheckinSummary{
-        val token = "Bearer ${tokenProvider()}"
-        return api.getCheckinSummary(token)
+    suspend fun deleteCheckin(token: String, id: String){
+        return api.deleteCheckin("Bearer $token", id)
     }
+
+    suspend fun getReport(
+        token: String,
+        startDate: String,
+        endDate: String,
+        userId: String? = null
+    ): List<CheckinResponse>{
+        return api.getReport("Bearer $token", startDate, endDate, userId)
+    }
+
+    suspend fun getSummary(
+        token: String,
+        startDate: String,
+        endDate: String,
+        userId: String? = null
+    ): CheckinSummaryResponse{
+        return api.getSummary("Bearer $token", startDate, endDate, userId)
+    }
+
 }

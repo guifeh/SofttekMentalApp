@@ -1,6 +1,6 @@
 package br.com.fiap.softekmentalapp.model
 
-data class User(
+data class UserResponse(
     val id: String,
     val email: String,
     val name: String,

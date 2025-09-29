@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import br.com.fiap.softekmentalapp.model.Checkin
+import br.com.fiap.softekmentalapp.navigation.AppScreen
 import br.com.fiap.softekmentalapp.repository.CheckinRepository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -33,7 +34,7 @@ fun HistoryScreen(
 
     var selectedDate by remember { mutableStateOf<Date?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
-    var checkins by remember { mutableStateOf<List<Checkin>>(emptyList()) }
+    var checkins by remember { mutableStateOf<List<AppScreen.Checkin>>(emptyList()) }
 
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
     val dayFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }

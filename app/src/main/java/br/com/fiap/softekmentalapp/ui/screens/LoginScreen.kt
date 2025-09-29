@@ -7,19 +7,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import br.com.fiap.softekmentalapp.repository.AuthRepository
 import br.com.fiap.softekmentalapp.viewmodel.AuthState
 import br.com.fiap.softekmentalapp.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(authRepository: AuthRepository, onLoginSuccess: () -> Unit)
- {
-    val viewModel: AuthViewModel = viewModel()
-
+fun LoginScreen(
+    authViewModel: AuthViewModel = viewModel(),
+    onLoginSuccess: (String) -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val state by viewModel.state.collectAsState()
+    val state by authViewModel.state.collectAsState()
 
     Column(
         modifier = Modifier
@@ -49,7 +48,7 @@ fun LoginScreen(authRepository: AuthRepository, onLoginSuccess: () -> Unit)
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.login(email, password) },
+            onClick = { authViewModel.login(email, password) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Entrar")
@@ -57,15 +56,15 @@ fun LoginScreen(authRepository: AuthRepository, onLoginSuccess: () -> Unit)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (state) {
+        when (val s = state) {
             is AuthState.Loading -> CircularProgressIndicator()
             is AuthState.Success -> {
                 Text("Login realizado com sucesso!", color = MaterialTheme.colorScheme.primary)
-                LaunchedEffect(Unit) {
-                    onLoginSuccess()
+                LaunchedEffect(s) {
+                    onLoginSuccess(s.response.accessToken)
                 }
             }
-            is AuthState.Error -> Text("Erro: ${(state as AuthState.Error).message}", color = MaterialTheme.colorScheme.error)
+            is AuthState.Error -> Text("Erro: ${s.message}", color = MaterialTheme.colorScheme.error)
             else -> {}
         }
     }

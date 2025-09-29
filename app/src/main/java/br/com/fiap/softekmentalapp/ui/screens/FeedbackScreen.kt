@@ -34,7 +34,7 @@ fun FeedbackScreen(
 
     LaunchedEffect(Unit) {
         try {
-            allCheckins = repository.getAllCheckins() // suspensa, então LaunchedEffect é o lugar certo
+            allCheckins = repository.getAllCheckins()
             allCheckins.forEach { checkin ->
                 Log.d("Checkins", "Checkin: ${checkin.emotion} - ${checkin.timestamp}")
             }

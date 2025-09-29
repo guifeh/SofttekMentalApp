@@ -14,7 +14,6 @@ import androidx.work.WorkManager
 import br.com.fiap.softekmentalapp.data.ThemePreferences
 import br.com.fiap.softekmentalapp.data.themeDataStore
 import br.com.fiap.softekmentalapp.navigation.AppNavGraph
-import br.com.fiap.softekmentalapp.network.CheckinApiService
 import br.com.fiap.softekmentalapp.repository.AuthRepository
 import br.com.fiap.softekmentalapp.repository.CheckinRepository
 import br.com.fiap.softekmentalapp.ui.theme.SoftekMentalAppTheme
@@ -53,9 +52,7 @@ class MainActivity : ComponentActivity() {
                             themePreferences.setDarkTheme(!isDarkTheme)
                         }
                     },
-                    coroutineScope = coroutineScope,
-                    checkinRepository = checkinRepository,
-                    authRepository = authRepository
+                    checkinRepository = checkinRepository
                 )
             }
         }

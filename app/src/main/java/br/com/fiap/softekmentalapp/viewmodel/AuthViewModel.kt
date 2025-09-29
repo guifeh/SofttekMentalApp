@@ -2,8 +2,8 @@ package br.com.fiap.softekmentalapp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.fiap.softekmentalapp.model.LoginResponse
 import br.com.fiap.softekmentalapp.repository.AuthRepository
-import br.com.fiap.softekmentalapp.repository.LoginResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,14 +23,17 @@ class AuthViewModel (
     val state: StateFlow<AuthState> = _state
 
     fun login(email: String, password: String){
-        _state.value = AuthState.Loading
         viewModelScope.launch {
+            _state.value = AuthState.Loading
             try {
                 val response = repository.login(email, password)
                 _state.value = AuthState.Success(response)
             }catch (e: Exception){
-                _state.value = AuthState.Error(e.message ?: "Erro misterioso uuu")
+                _state.value = AuthState.Error(e.message ?: "Ocorreu um erro inesperado no login")
             }
         }
+    }
+    fun resetState() {
+        _state.value = AuthState.Idle
     }
 }

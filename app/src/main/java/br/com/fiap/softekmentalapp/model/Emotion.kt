@@ -1,4 +1,3 @@
-// arquivo: model/Emotion.kt
 package br.com.fiap.softekmentalapp.model
 
 sealed class Emotion(val id: Int, val routeParam: String) {
