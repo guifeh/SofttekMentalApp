@@ -2,6 +2,8 @@ package br.com.fiap.softekmentalapp.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.fiap.softekmentalapp.model.CheckinResponse
+import br.com.fiap.softekmentalapp.model.CheckinSummaryResponse
 import br.com.fiap.softekmentalapp.repository.CheckinRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,9 +14,19 @@ class InsightsViewModel(private val repository: CheckinRepository) : ViewModel()
     private val _stats = MutableStateFlow<Map<String, Int>>(emptyMap())
     val stats: StateFlow<Map<String, Int>> = _stats
 
-    init {
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
+    fun loadStats() {
         viewModelScope.launch {
-            _stats.value = repository.getCheckinStats()
+            try {
+                val summary: List<CheckinResponse> = repository.getCheckins(token = String())
+                _stats.value = summary.associate { it.emotion to it.id.toInt() }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _error.value = e.message
+            }
         }
     }
 }

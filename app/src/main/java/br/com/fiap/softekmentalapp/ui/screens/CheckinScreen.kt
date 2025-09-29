@@ -1,121 +1,68 @@
 package br.com.fiap.softekmentalapp.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material.icons.filled.Mood
-import androidx.compose.material.icons.filled.MoodBad
-import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import br.com.fiap.softekmentalapp.navigation.AppScreen
-import br.com.fiap.softekmentalapp.repository.CheckinRepository
-import br.com.fiap.softekmentalapp.model.Checkin
-import br.com.fiap.softekmentalapp.model.Emotion
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
+import br.com.fiap.softekmentalapp.viewmodel.CheckinState
+import br.com.fiap.softekmentalapp.viewmodel.CheckinViewModel
+import br.com.fiap.softekmentalapp.model.CheckinRequest
 
 @Composable
 fun CheckinScreen(
-    navController: NavController,
-    coroutineScope: CoroutineScope
+    token: String,
+    checkinViewModel: CheckinViewModel = viewModel()
 ) {
+    var emotion by remember { mutableStateOf("") }
+    var note by remember { mutableStateOf("") }
+
+    val state by checkinViewModel.state.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Como você está se sentindo hoje?",
-            fontSize = 26.sp,
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.headlineMedium
+        Text("Novo Check-in", style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = emotion,
+            onValueChange = { emotion = it },
+            label = { Text("Como você está se sentindo?") },
+            modifier = Modifier.fillMaxWidth()
         )
 
-        EmotionButton(
-            text = "Feliz",
-            color = Color(0xFF81C784),
-            icon = Icons.Default.Mood
+        OutlinedTextField(
+            value = note,
+            onValueChange = { note = it },
+            label = { Text("Observações (opcional)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                val request = CheckinRequest(emotion = emotion, note = note)
+                checkinViewModel.createCheckin(token, emotion, note)
+            },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            coroutineScope.launch {
-                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Happy.id.toString()))
-                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Happy.routeParam))
-            }
+            Text("Registrar Check-in")
         }
 
-        EmotionButton(
-            text = "Triste",
-            color = Color(0xFFE57373),
-            icon = Icons.Default.MoodBad
-        ) {
-            coroutineScope.launch {
-                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Sad.id.toString()))
-                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Sad.routeParam))
-            }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        when (val s = state) {
+            is CheckinState.Loading -> CircularProgressIndicator()
+            is CheckinState.Success -> Text("Check-in registrado com sucesso!", color = MaterialTheme.colorScheme.primary)
+            is CheckinState.Error -> Text("Erro: ${s.message}", color = MaterialTheme.colorScheme.error)
+            else -> {}
         }
-
-        EmotionButton(
-            text = "Ansioso",
-            color = Color(0xFFFFB74D),
-            icon = Icons.Default.SentimentVeryDissatisfied
-        ) {
-            coroutineScope.launch {
-                CheckinRepository.addCheckin(Checkin(emotion = Emotion.Anxious.id.toString()))
-                navController.navigate(AppScreen.Feedback.createRoute(Emotion.Anxious.routeParam))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        OutlinedButton(
-            onClick = { navController.navigate(AppScreen.History.route) },
-            shape = RoundedCornerShape(50),
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) {
-            Icon(Icons.Default.History, contentDescription = "Histórico")
-            Spacer(Modifier.width(8.dp))
-            Text("Ver Histórico")
-        }
-
-        OutlinedButton(
-            onClick = { navController.navigate(AppScreen.Insights.route) },
-            shape = RoundedCornerShape(50),
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) {
-            Icon(Icons.Default.Insights, contentDescription = "Insights")
-            Spacer(Modifier.width(8.dp))
-            Text("Ver Insights")
-        }
-    }
-}
-
-@Composable
-fun EmotionButton(
-    text: String,
-    color: Color,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = color),
-        shape = RoundedCornerShape(50),
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .height(56.dp)
-    ) {
-        Icon(icon, contentDescription = text)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text, fontSize = 18.sp)
     }
 }

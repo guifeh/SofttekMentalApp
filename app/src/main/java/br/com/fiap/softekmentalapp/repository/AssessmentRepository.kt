@@ -1,32 +1,31 @@
 package br.com.fiap.softekmentalapp.repository
 
-import android.content.Context
-import br.com.fiap.softekmentalapp.model.AssessmentResult
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import br.com.fiap.softekmentalapp.model.AssessmentRequest
+import br.com.fiap.softekmentalapp.model.AssessmentResponse
+import br.com.fiap.softekmentalapp.model.AssessmentSummaryResponse
+import br.com.fiap.softekmentalapp.model.Question
+import br.com.fiap.softekmentalapp.network.RetrofitInstance
 
-object AssessmentRepository {
-    private lateinit var assessmentDao: AssessmentDao
+class AssessmentRepository {
+    private val api = RetrofitInstance.assessmentApi
 
-    fun initialize(context: Context) {
-        assessmentDao = AppDatabase.getDatabase(context).assessmentDao()
+    suspend fun createAssessment(token: String, request: AssessmentRequest): AssessmentResponse{
+        return api.createAssessment("Bearer $token", request)
     }
 
-    suspend fun addResult(result: AssessmentResult) {
-        withContext(Dispatchers.IO) {
-            assessmentDao.insert(result)
-        }
+    suspend fun getAssessment(token: String): List<AssessmentResponse>{
+        return api.getAssessments("Bearer $token")
     }
 
-    suspend fun getAllResults(): List<AssessmentResult> {
-        return withContext(Dispatchers.IO) {
-            assessmentDao.getAllResults()
-        }
+    suspend fun getSummary(token: String): AssessmentSummaryResponse{
+        return api.getSummary("Bearer $token")
     }
 
-    suspend fun clearAllResults() {
-        withContext(Dispatchers.IO) {
-            assessmentDao.clearAllResults()
-        }
+    fun getQuestions(): List<Question> {
+        return listOf(
+            Question(1, "Com que frequência você se sente sobrecarregado(a) com suas tarefas?"),
+            Question(2, "Você sente que tem apoio suficiente no trabalho?"),
+            Question(3, "Você tem dificuldades para dormir por conta de preocupações com o trabalho?")
+        )
     }
 }

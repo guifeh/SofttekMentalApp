@@ -15,10 +15,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import br.com.fiap.softekmentalapp.model.AssessmentResult
+import androidx.navigation.NavHostController
 import br.com.fiap.softekmentalapp.model.Checkin
-import br.com.fiap.softekmentalapp.repository.AssessmentRepository
+import br.com.fiap.softekmentalapp.navigation.AppScreen
 import br.com.fiap.softekmentalapp.repository.CheckinRepository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -26,38 +25,35 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreen(navController: NavController) {
+fun HistoryScreen(
+    navController: NavHostController,
+    checkinRepository: CheckinRepository
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
     var selectedDate by remember { mutableStateOf<Date?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
-    var checkins by remember { mutableStateOf<List<Checkin>>(emptyList()) }
-    var assessments by remember { mutableStateOf<List<AssessmentResult>>(emptyList()) }
+    var checkins by remember { mutableStateOf<List<AppScreen.Checkin>>(emptyList()) }
+
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
+    val dayFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
     LaunchedEffect(Unit) {
         scope.launch {
-            checkins = CheckinRepository.getAllCheckins()
-            assessments = AssessmentRepository.getAllResults()
+            try {
+                checkins = checkinRepository.getAllCheckins()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                checkins = emptyList()
+            }
         }
     }
 
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    val dayFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
     val filteredCheckins = remember(selectedDate, checkins) {
         selectedDate?.let { date ->
-            checkins.filter {
-                dayFormat.format(Date(it.timestamp)) == dayFormat.format(date)
-            }
+            checkins.filter { dayFormat.format(Date(it.timestamp)) == dayFormat.format(date) }
         } ?: checkins
-    }
-
-    val filteredAssessments = remember(selectedDate, assessments) {
-        selectedDate?.let { date ->
-            assessments.filter {
-                dayFormat.format(Date(it.timestamp)) == dayFormat.format(date)
-            }
-        } ?: assessments
     }
 
     if (showDatePicker) {
@@ -76,21 +72,12 @@ fun HistoryScreen(navController: NavController) {
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Histórico", style = MaterialTheme.typography.titleLarge) }
-            )
-        }
+        topBar = { TopAppBar(title = { Text("Histórico", style = MaterialTheme.typography.titleLarge) }) }
     ) { padding ->
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFE0F7FA), Color(0xFFB2EBF2))
-                    )
-                )
+                .background(Brush.verticalGradient(listOf(Color(0xFFE0F7FA), Color(0xFFB2EBF2))))
                 .padding(padding)
         ) {
             LazyColumn(
@@ -106,71 +93,20 @@ fun HistoryScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Button(onClick = { showDatePicker = true }) {
-                            Text("Filtrar Data")
-                        }
-                        OutlinedButton(onClick = { selectedDate = null }) {
-                            Text("Limpar Filtro")
-                        }
+                        Button(onClick = { showDatePicker = true }) { Text("Filtrar Data") }
+                        OutlinedButton(onClick = { selectedDate = null }) { Text("Limpar Filtro") }
                         OutlinedButton(
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
                             onClick = {
                                 scope.launch {
-                                    CheckinRepository.clearAllCheckins()
-                                    AssessmentRepository.clearAllResults()
-                                    checkins = CheckinRepository.getAllCheckins()
-                                    assessments = AssessmentRepository.getAllResults()
+                                    checkins = emptyList() // apenas limpa localmente
                                 }
                             }
-                        ) {
-                            Text("Limpar Histórico")
-                        }
+                        ) { Text("Limpar Histórico") }
                     }
                 }
 
-                item {
-                    Text(
-                        "Evolução das Avaliações",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(top = 12.dp)
-                    )
-                }
-
-                if (filteredAssessments.isEmpty()) {
-                    item { Text("Nenhuma avaliação encontrada.") }
-                } else {
-                    items(filteredAssessments.reversed()) { result ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            elevation = CardDefaults.cardElevation(6.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    "Data: ${dateFormat.format(Date(result.timestamp))}",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Text(
-                                    "Média: ${"%.2f".format(result.score)}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Text(
-                                    "Classificação: ${result.classification}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    Text(
-                        "Check-ins Emocionais",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(top = 16.dp)
-                    )
-                }
+                item { Text("Check-ins Emocionais", style = MaterialTheme.typography.headlineSmall) }
 
                 if (filteredCheckins.isEmpty()) {
                     item { Text("Nenhum check-in encontrado.") }

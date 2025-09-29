@@ -1,38 +1,42 @@
 package br.com.fiap.softekmentalapp.repository
 
-import android.content.Context
-import br.com.fiap.softekmentalapp.model.Checkin
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import br.com.fiap.softekmentalapp.model.CheckinRequest
+import br.com.fiap.softekmentalapp.model.CheckinResponse
+import br.com.fiap.softekmentalapp.model.CheckinSummaryResponse
+import br.com.fiap.softekmentalapp.network.RetrofitInstance
+import br.com.fiap.softekmentalapp.network.UserApi
 
-object CheckinRepository {
-    private lateinit var checkinDao: CheckinDao
+class CheckinRepository {
+    private val api = RetrofitInstance.checkinApi
 
-    fun initialize(context: Context) {
-        checkinDao = AppDatabase.getDatabase(context).checkinDao()
+    suspend fun createCheckin(token: String, request: CheckinRequest): CheckinResponse{
+        return api.createCheckin("Bearer $token", request)
     }
 
-    suspend fun addCheckin(checkin: Checkin) {
-        withContext(Dispatchers.IO) {
-            checkinDao.insert(checkin)
-        }
+    suspend fun getCheckins(token: String): List<CheckinResponse>{
+        return api.getCheckins("Bearer $token")
     }
 
-    suspend fun getAllCheckins(): List<Checkin> {
-        return withContext(Dispatchers.IO) {
-            checkinDao.getAllCheckins()
-        }
+    suspend fun deleteCheckin(token: String, id: String){
+        return api.deleteCheckin("Bearer $token", id)
     }
 
-    suspend fun clearAllCheckins() {
-        withContext(Dispatchers.IO) {
-            checkinDao.clearAllCheckins()
-        }
+    suspend fun getReport(
+        token: String,
+        startDate: String,
+        endDate: String,
+        userId: String? = null
+    ): List<CheckinResponse>{
+        return api.getReport("Bearer $token", startDate, endDate, userId)
     }
 
-    suspend fun getCheckinStats(): Map<String, Int> {
-        val checkins = checkinDao.getAllCheckins()
-        return checkins.groupingBy { it.emotion }.eachCount()
+    suspend fun getSummary(
+        token: String,
+        startDate: String,
+        endDate: String,
+        userId: String? = null
+    ): CheckinSummaryResponse{
+        return api.getSummary("Bearer $token", startDate, endDate, userId)
     }
 
 }
