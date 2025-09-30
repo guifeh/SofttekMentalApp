@@ -16,9 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import br.com.fiap.softekmentalapp.model.Checkin
-import br.com.fiap.softekmentalapp.navigation.AppScreen
 import br.com.fiap.softekmentalapp.repository.CheckinRepository
+import br.com.fiap.softekmentalapp.model.CheckinResponse
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,26 +26,33 @@ import java.util.*
 @Composable
 fun HistoryScreen(
     navController: NavHostController,
-    checkinRepository: CheckinRepository
+    checkinRepository: CheckinRepository,
+    token: String
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedDate by remember { mutableStateOf<Date?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
-    var checkins by remember { mutableStateOf<List<AppScreen.Checkin>>(emptyList()) }
+    var checkins by remember { mutableStateOf<List<CheckinResponse>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
     val dayFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
-    LaunchedEffect(Unit) {
-        scope.launch {
-            try {
-                checkins = checkinRepository.getAllCheckins()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                checkins = emptyList()
-            }
+    LaunchedEffect(token) {
+        isLoading = true
+        try {
+            checkins = checkinRepository.getCheckins(token)
+            errorMessage = null
+        } catch (e: Exception) {
+            errorMessage = e.message ?: "Erro ao carregar histórico"
+            checkins = emptyList()
+            scope.launch { snackbarHostState.showSnackbar(errorMessage ?: "Erro") }
+        } finally {
+            isLoading = false
         }
     }
 
@@ -61,7 +67,7 @@ fun HistoryScreen(
         DatePickerDialog(
             context,
             { _: DatePicker, year: Int, month: Int, day: Int ->
-                calendar.set(year, month, day)
+                calendar.set(year, month, day, 0, 0, 0)
                 selectedDate = calendar.time
                 showDatePicker = false
             },
@@ -72,7 +78,8 @@ fun HistoryScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Histórico", style = MaterialTheme.typography.titleLarge) }) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        topBar = { TopAppBar(title = { Text("Histórico") }) }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -80,6 +87,13 @@ fun HistoryScreen(
                 .background(Brush.verticalGradient(listOf(Color(0xFFE0F7FA), Color(0xFFB2EBF2))))
                 .padding(padding)
         ) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+                return@Box
+            }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -98,8 +112,9 @@ fun HistoryScreen(
                         OutlinedButton(
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
                             onClick = {
+                                checkins = emptyList()
                                 scope.launch {
-                                    checkins = emptyList() // apenas limpa localmente
+                                    snackbarHostState.showSnackbar("Histórico limpo localmente")
                                 }
                             }
                         ) { Text("Limpar Histórico") }
@@ -123,6 +138,9 @@ fun HistoryScreen(
                                     "Emoção: ${checkin.emotion.replaceFirstChar { it.uppercase() }}",
                                     style = MaterialTheme.typography.bodyLarge
                                 )
+                                checkin.note?.let {
+                                    Text("Observação: $it", style = MaterialTheme.typography.bodyMedium)
+                                }
                                 Text(
                                     "Data: ${dateFormat.format(Date(checkin.timestamp))}",
                                     style = MaterialTheme.typography.bodyMedium

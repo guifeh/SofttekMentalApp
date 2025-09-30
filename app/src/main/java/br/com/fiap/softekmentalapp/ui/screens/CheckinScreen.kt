@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import br.com.fiap.softekmentalapp.viewmodel.CheckinState
 import br.com.fiap.softekmentalapp.viewmodel.CheckinViewModel
 import br.com.fiap.softekmentalapp.model.CheckinRequest
@@ -13,6 +14,7 @@ import br.com.fiap.softekmentalapp.model.CheckinRequest
 @Composable
 fun CheckinScreen(
     token: String,
+    navController: NavHostController,
     checkinViewModel: CheckinViewModel = viewModel()
 ) {
     var emotion by remember { mutableStateOf("") }
@@ -60,7 +62,12 @@ fun CheckinScreen(
 
         when (val s = state) {
             is CheckinState.Loading -> CircularProgressIndicator()
-            is CheckinState.Success -> Text("Check-in registrado com sucesso!", color = MaterialTheme.colorScheme.primary)
+            is CheckinState.Success -> {
+                LaunchedEffect(Unit) {
+                    navController.navigate("feedback/${s.response.emotion}")
+                    checkinViewModel.resetState()
+                }
+            }
             is CheckinState.Error -> Text("Erro: ${s.message}", color = MaterialTheme.colorScheme.error)
             else -> {}
         }

@@ -8,6 +8,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import br.com.fiap.softekmentalapp.model.AssessmentRequest
 import br.com.fiap.softekmentalapp.viewmodel.AssessmentState
 import br.com.fiap.softekmentalapp.viewmodel.AssessmentViewModel
@@ -18,6 +20,7 @@ data class Question(val id: Int, val text: String)
 @Composable
 fun RiskAssessmentScreen(
     token: String,
+    navController: NavHostController,
     assessmentViewModel: AssessmentViewModel = viewModel()
 ) {
     val questions = assessmentViewModel.getQuestions()

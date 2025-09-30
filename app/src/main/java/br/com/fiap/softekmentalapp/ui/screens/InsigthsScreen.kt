@@ -14,7 +14,8 @@ import br.com.fiap.softekmentalapp.viewmodel.InsightsViewModel
 
 @Composable
 fun InsightsScreen(
-    viewModel: InsightsViewModel
+    viewModel: InsightsViewModel,
+    token: String
 ) {
     val stats by viewModel.stats.collectAsState()
 

@@ -8,24 +8,27 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import br.com.fiap.softekmentalapp.repository.AuthRepository
 import br.com.fiap.softekmentalapp.repository.CheckinRepository
 import br.com.fiap.softekmentalapp.ui.components.MainScaffold
 import br.com.fiap.softekmentalapp.ui.screens.*
 import br.com.fiap.softekmentalapp.viewmodel.AssessmentViewModel
-import br.com.fiap.softekmentalapp.viewmodel.InsightsViewModel
 import br.com.fiap.softekmentalapp.viewmodel.CheckinViewModel
+import br.com.fiap.softekmentalapp.viewmodel.InsightsViewModel
 
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
     isDarkTheme: Boolean,
     onThemeUpdated: () -> Unit,
-    checkinRepository: CheckinRepository
+    checkinRepository: CheckinRepository,
+    authRepository: AuthRepository
 ) {
     NavHost(
         navController = navController,
         startDestination = "login"
     ) {
+        // LOGIN
         composable("login") {
             LoginScreen(
                 authViewModel = viewModel(),
@@ -37,19 +40,21 @@ fun AppNavGraph(
             )
         }
 
+        // CHECKIN
         composable(
             route = "checkin/{token}",
             arguments = listOf(navArgument("token") { type = NavType.StringType })
         ) { backStackEntry ->
             val token = backStackEntry.arguments?.getString("token") ?: ""
-            val viewModel = remember { CheckinViewModel(checkinRepository) }
+            val checkinVm = remember { CheckinViewModel(checkinRepository) }
 
             MainScaffold(
                 navController = navController,
                 currentScreen = {
                     CheckinScreen(
                         token = token,
-                        checkinViewModel = viewModel
+                        navController = navController,
+                        checkinViewModel = checkinVm
                     )
                 },
                 isDarkTheme = isDarkTheme,
@@ -57,36 +62,68 @@ fun AppNavGraph(
             )
         }
 
-        composable(AppScreen.RiskAssessment.route) {
-            MainScaffold(
-                navController = navController,
-                currentScreen = { RiskAssessmentScreen(token = String(), assessmentViewModel = viewModel()) },
-                isDarkTheme = isDarkTheme,
-                onThemeUpdated = onThemeUpdated
-            )
-        }
-
-        composable(AppScreen.History.route) {
-            MainScaffold(
-                navController = navController,
-                currentScreen = { HistoryScreen(navController, checkinRepository) },
-                isDarkTheme = isDarkTheme,
-                onThemeUpdated = onThemeUpdated
-            )
-        }
-
+        // RISK ASSESSMENT
         composable(
-            route = AppScreen.Feedback.route,
-            arguments = listOf(navArgument("emotion") { type = NavType.StringType })
+            route = "${AppScreen.RiskAssessment.route}/{token}",
+            arguments = listOf(navArgument("token") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val token = backStackEntry.arguments?.getString("token") ?: ""
+            val assessmentVm: AssessmentViewModel = viewModel()
+
+            MainScaffold(
+                navController = navController,
+                currentScreen = {
+                    RiskAssessmentScreen(
+                        navController = navController,
+                        token = token,
+                        assessmentViewModel = assessmentVm
+                    )
+                },
+                isDarkTheme = isDarkTheme,
+                onThemeUpdated = onThemeUpdated
+            )
+        }
+
+        // HISTORY
+        composable(
+            route = "${AppScreen.History.route}/{token}",
+            arguments = listOf(navArgument("token") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val token = backStackEntry.arguments?.getString("token") ?: ""
+
+            MainScaffold(
+                navController = navController,
+                currentScreen = {
+                    HistoryScreen(
+                        navController = navController,
+                        checkinRepository = checkinRepository,
+                        token = token
+                    )
+                },
+                isDarkTheme = isDarkTheme,
+                onThemeUpdated = onThemeUpdated
+            )
+        }
+
+        // FEEDBACK
+        composable(
+            route = "${AppScreen.Feedback.route}/{emotion}/{token}",
+            arguments = listOf(
+                navArgument("emotion") { type = NavType.StringType },
+                navArgument("token") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val emotion = backStackEntry.arguments?.getString("emotion") ?: ""
+            val token = backStackEntry.arguments?.getString("token") ?: ""
+
             MainScaffold(
                 navController = navController,
                 currentScreen = {
                     FeedbackScreen(
                         emotion = emotion,
                         navController = navController,
-                        repository = checkinRepository
+                        repository = checkinRepository,
+                        token = token
                     )
                 },
                 isDarkTheme = isDarkTheme,
@@ -94,21 +131,29 @@ fun AppNavGraph(
             )
         }
 
+        // SUPPORT (não precisa de token)
         composable(AppScreen.Support.route) {
             MainScaffold(
                 navController = navController,
-                currentScreen = { SupportScreen(navController) },
+                currentScreen = { SupportScreen(navController = navController) },
                 isDarkTheme = isDarkTheme,
                 onThemeUpdated = onThemeUpdated
             )
         }
 
-        composable(AppScreen.Insights.route) {
-            val viewModel = remember { InsightsViewModel(checkinRepository) }
+        // INSIGHTS
+        composable(
+            route = "${AppScreen.Insights.route}/{token}",
+            arguments = listOf(navArgument("token") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val token = backStackEntry.arguments?.getString("token") ?: ""
+            val insightsVm = remember { InsightsViewModel(checkinRepository) }
 
             MainScaffold(
                 navController = navController,
-                currentScreen = { InsightsScreen(viewModel = viewModel) },
+                currentScreen = {
+                    InsightsScreen(viewModel = insightsVm, token = token)
+                },
                 isDarkTheme = isDarkTheme,
                 onThemeUpdated = onThemeUpdated
             )
