@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import br.com.fiap.softekmentalapp.viewmodel.CheckinState
 import br.com.fiap.softekmentalapp.viewmodel.CheckinViewModel
 import br.com.fiap.softekmentalapp.model.CheckinRequest
+import kotlinx.coroutines.launch
 
 @Composable
 fun CheckinScreen(
@@ -19,6 +20,8 @@ fun CheckinScreen(
 ) {
     var emotion by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var feedbackMessage by remember { mutableStateOf("") }
 
     val state by checkinViewModel.state.collectAsState()
 
@@ -50,7 +53,6 @@ fun CheckinScreen(
 
         Button(
             onClick = {
-                val request = CheckinRequest(emotion = emotion, note = note)
                 checkinViewModel.createCheckin(token, emotion, note)
             },
             modifier = Modifier.fillMaxWidth()
@@ -63,13 +65,35 @@ fun CheckinScreen(
         when (val s = state) {
             is CheckinState.Loading -> CircularProgressIndicator()
             is CheckinState.Success -> {
-                LaunchedEffect(Unit) {
-                    navController.navigate("feedback/${s.response.emotion}")
+                LaunchedEffect(s) {
+                    feedbackMessage = when (s.response.emotion.lowercase()) {
+                        "feliz" -> "Que bom saber que você está bem! 😊"
+                        "triste" -> "Lembre-se: tudo passa. Estamos com você 💙"
+                        "ansioso" -> "Respire fundo... vai ficar tudo bem 🍃"
+                        else -> "Sentimento registrado com sucesso ✅"
+                    }
+                    showDialog = true
                     checkinViewModel.resetState()
                 }
             }
-            is CheckinState.Error -> Text("Erro: ${s.message}", color = MaterialTheme.colorScheme.error)
+            is CheckinState.Error -> Text(
+                "Erro: ${s.message}",
+                color = MaterialTheme.colorScheme.error
+            )
             else -> {}
         }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Feedback") },
+            text = { Text(feedbackMessage) }
+        )
     }
 }

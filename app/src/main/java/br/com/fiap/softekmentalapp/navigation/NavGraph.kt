@@ -22,7 +22,7 @@ fun AppNavGraph(
     isDarkTheme: Boolean,
     onThemeUpdated: () -> Unit,
     checkinRepository: CheckinRepository,
-    authRepository: AuthRepository
+    authRepository: AuthRepository,
 ) {
     NavHost(
         navController = navController,
@@ -41,8 +41,7 @@ fun AppNavGraph(
         }
 
         // CHECKIN
-        composable(
-            route = "checkin/{token}",
+        composable("${AppScreen.Checkin.route}/{token}",
             arguments = listOf(navArgument("token") { type = NavType.StringType })
         ) { backStackEntry ->
             val token = backStackEntry.arguments?.getString("token") ?: ""
@@ -58,7 +57,8 @@ fun AppNavGraph(
                     )
                 },
                 isDarkTheme = isDarkTheme,
-                onThemeUpdated = onThemeUpdated
+                onThemeUpdated = onThemeUpdated,
+                token = token
             )
         }
 
@@ -80,7 +80,8 @@ fun AppNavGraph(
                     )
                 },
                 isDarkTheme = isDarkTheme,
-                onThemeUpdated = onThemeUpdated
+                onThemeUpdated = onThemeUpdated,
+                token = token
             )
         }
 
@@ -101,33 +102,8 @@ fun AppNavGraph(
                     )
                 },
                 isDarkTheme = isDarkTheme,
-                onThemeUpdated = onThemeUpdated
-            )
-        }
-
-        // FEEDBACK
-        composable(
-            route = "${AppScreen.Feedback.route}/{emotion}/{token}",
-            arguments = listOf(
-                navArgument("emotion") { type = NavType.StringType },
-                navArgument("token") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val emotion = backStackEntry.arguments?.getString("emotion") ?: ""
-            val token = backStackEntry.arguments?.getString("token") ?: ""
-
-            MainScaffold(
-                navController = navController,
-                currentScreen = {
-                    FeedbackScreen(
-                        emotion = emotion,
-                        navController = navController,
-                        repository = checkinRepository,
-                        token = token
-                    )
-                },
-                isDarkTheme = isDarkTheme,
-                onThemeUpdated = onThemeUpdated
+                onThemeUpdated = onThemeUpdated,
+                token = token
             )
         }
 
@@ -155,7 +131,8 @@ fun AppNavGraph(
                     InsightsScreen(viewModel = insightsVm, token = token)
                 },
                 isDarkTheme = isDarkTheme,
-                onThemeUpdated = onThemeUpdated
+                onThemeUpdated = onThemeUpdated,
+                token = token
             )
         }
     }

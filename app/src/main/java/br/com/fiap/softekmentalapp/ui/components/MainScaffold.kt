@@ -24,7 +24,8 @@ fun MainScaffold(
     navController: NavController,
     currentScreen: @Composable () -> Unit,
     isDarkTheme: Boolean,
-    onThemeUpdated: () -> Unit
+    onThemeUpdated: () -> Unit,
+    token: String? = null
 ) {
     val drawerItems = listOf(
         DrawerItem("Check-in Emocional", Icons.Filled.EmojiEmotions, AppScreen.Checkin),
@@ -57,7 +58,17 @@ fun MainScaffold(
                             if (item.title.contains("Tema")) {
                                 onThemeUpdated()
                             } else {
-                                navController.navigate(item.screen.route)
+                                if (item.screen in listOf(
+                                        AppScreen.Checkin,
+                                        AppScreen.RiskAssessment,
+                                        AppScreen.History,
+                                        AppScreen.Insights
+                                    )
+                                ) {
+                                    navController.navigate("${item.screen.route}/$token")
+                                } else {
+                                    navController.navigate(item.screen.route)
+                                }
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
