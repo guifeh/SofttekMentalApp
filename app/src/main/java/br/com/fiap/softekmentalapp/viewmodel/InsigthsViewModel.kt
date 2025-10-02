@@ -11,22 +11,19 @@ import kotlinx.coroutines.launch
 
 class InsightsViewModel(private val repository: CheckinRepository) : ViewModel() {
 
-    private val _stats = MutableStateFlow<Map<String, Int>>(emptyMap())
-    val stats: StateFlow<Map<String, Int>> = _stats
+    private val _checkins = MutableStateFlow<List<CheckinResponse>>(emptyList())
+    val checkins: StateFlow<List<CheckinResponse>> = _checkins
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
-
-    fun loadStats() {
+    fun loadCheckins(token: String) {
         viewModelScope.launch {
             try {
-                val summary: List<CheckinResponse> = repository.getCheckins(token = String())
-                _stats.value = summary.associate { it.emotion to it.id.toInt() }
-
+                val checkins = repository.getCheckins(token)
+                _checkins.value = checkins
             } catch (e: Exception) {
                 e.printStackTrace()
-                _error.value = e.message
+                _checkins.value = emptyList()
             }
         }
     }
 }
+

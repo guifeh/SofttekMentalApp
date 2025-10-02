@@ -7,7 +7,6 @@ data class AssessmentRequest(
 
 data class AssessmentResponse(
     val id: String,
-    val userId: String,
     val question: String,
     val answer: Int,
     val score: String,

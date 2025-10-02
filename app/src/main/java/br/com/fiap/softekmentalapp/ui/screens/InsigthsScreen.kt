@@ -17,7 +17,14 @@ fun InsightsScreen(
     viewModel: InsightsViewModel,
     token: String
 ) {
-    val stats by viewModel.stats.collectAsState()
+    LaunchedEffect(token) {
+        viewModel.loadCheckins(token)
+    }
+
+    val checkins by viewModel.checkins.collectAsState()
+    val emotionCount = remember(checkins) {
+        checkins.groupingBy { it.emotion }.eachCount()
+    }
 
     Box(
         modifier = Modifier
@@ -44,8 +51,8 @@ fun InsightsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (stats.isNotEmpty()) {
-                stats.forEach { (emotion, count) ->
+            if (emotionCount.isNotEmpty()) {
+                emotionCount.forEach { (emotion, count) ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -61,7 +68,7 @@ fun InsightsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = emotion,
+                                text = emotion.replaceFirstChar { it.uppercase() },
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.weight(1f)
                             )
@@ -92,3 +99,4 @@ fun InsightsScreen(
         }
     }
 }
+

@@ -1,5 +1,7 @@
 package br.com.fiap.softekmentalapp.model
 
+import com.google.gson.annotations.SerializedName
+
 data class CheckinRequest(
     val emotion: String,
     val note: String? = null
@@ -10,7 +12,7 @@ data class CheckinResponse(
     val userId: String,
     val emotion: String,
     val note: String?,
-    val timestamp: Long
+    @SerializedName("createdAt") val timestamp: Long
 )
 
 data class CheckinSummaryItem(
