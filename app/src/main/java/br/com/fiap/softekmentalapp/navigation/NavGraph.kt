@@ -141,11 +141,14 @@ fun AppNavGraph(
             )
         }
 
-        // SUPPORT (não precisa de token)
-        composable(AppScreen.Support.route) {
+        composable(
+            route = "${AppScreen.Support.route}/{token}",
+            arguments = listOf(navArgument("token") { type = NavType.StringType })
+        ){ backStackEntry ->
+            val token = backStackEntry.arguments?.getString("token") ?: ""
             MainScaffold(
                 navController = navController,
-                currentScreen = { SupportScreen(navController = navController) },
+                currentScreen = { SupportScreen(navController = navController, token = token) },
                 isDarkTheme = isDarkTheme,
                 onThemeUpdated = onThemeUpdated
             )

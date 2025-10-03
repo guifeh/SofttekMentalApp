@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SupportScreen(navController: NavController) {
+fun SupportScreen(navController: NavController, token: String) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var contents by remember { mutableStateOf<List<SupportContent>>(emptyList()) }

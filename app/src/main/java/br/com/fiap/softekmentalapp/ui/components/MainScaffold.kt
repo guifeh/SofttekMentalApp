@@ -28,12 +28,12 @@ fun MainScaffold(
     token: String? = null
 ) {
     val drawerItems = listOf(
+        DrawerItem("Perfil", Icons.Filled.Person, AppScreen.Profile),
         DrawerItem("Check-in Emocional", Icons.Filled.EmojiEmotions, AppScreen.Checkin),
         DrawerItem("Histórico", Icons.Filled.History, AppScreen.History),
         DrawerItem("Avaliação de Riscos", Icons.Filled.Assessment, AppScreen.RiskAssessment),
         DrawerItem("Suporte", Icons.Filled.Help, AppScreen.Support),
         DrawerItem("Insights", Icons.Filled.Insights, AppScreen.Insights),
-        DrawerItem("Profile", Icons.Filled.Person, AppScreen.Profile),
         DrawerItem(
             if (isDarkTheme) "Tema Claro" else "Tema Escuro",
             if (isDarkTheme) Icons.Filled.LightMode else Icons.Filled.DarkMode,
@@ -48,7 +48,7 @@ fun MainScaffold(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 drawerItems.forEach { item ->
                     NavigationDrawerItem(
                         label = { Text(item.title) },
@@ -56,21 +56,10 @@ fun MainScaffold(
                         icon = { Icon(item.icon, contentDescription = item.title) },
                         onClick = {
                             scope.launch { drawerState.close() }
-                            if (item.title.contains("Tema")) {
-                                onThemeUpdated()
+                            if (item.screen.requiresToken) {
+                                navController.navigate("${item.screen.route}/$token")
                             } else {
-                                if (item.screen in listOf(
-                                        AppScreen.Checkin,
-                                        AppScreen.RiskAssessment,
-                                        AppScreen.History,
-                                        AppScreen.Insights,
-                                        AppScreen.Profile
-                                    )
-                                ) {
-                                    navController.navigate("${item.screen.route}/$token")
-                                } else {
-                                    navController.navigate(item.screen.route)
-                                }
+                                navController.navigate(item.screen.route)
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
