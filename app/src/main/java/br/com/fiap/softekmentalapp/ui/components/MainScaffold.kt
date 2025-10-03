@@ -56,10 +56,21 @@ fun MainScaffold(
                         icon = { Icon(item.icon, contentDescription = item.title) },
                         onClick = {
                             scope.launch { drawerState.close() }
-                            if (item.screen.requiresToken) {
-                                navController.navigate("${item.screen.route}/$token")
+                            if (item.title.contains("Tema")) {
+                                onThemeUpdated()
                             } else {
-                                navController.navigate(item.screen.route)
+                                if (item.screen in listOf(
+                                        AppScreen.Checkin,
+                                        AppScreen.RiskAssessment,
+                                        AppScreen.History,
+                                        AppScreen.Insights,
+                                        AppScreen.Profile
+                                    )
+                                ) {
+                                    navController.navigate("${item.screen.route}/$token")
+                                } else {
+                                    navController.navigate(item.screen.route)
+                                }
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
