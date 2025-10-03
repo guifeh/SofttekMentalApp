@@ -25,8 +25,8 @@ class AssessmentViewModel(
     val state: StateFlow<AssessmentState> = _state
 
     fun createAssessment(token: String, request: AssessmentRequest) {
-        _state.value = AssessmentState.Loading
         viewModelScope.launch {
+            _state.value = AssessmentState.Loading
             try {
                 val response = repository.createAssessment(token, request)
                 _state.value = AssessmentState.Success(response)
@@ -37,15 +37,14 @@ class AssessmentViewModel(
     }
 
     fun submitBatch(token: String, requests: List<AssessmentRequest>) {
-        _state.value = AssessmentState.Loading
         viewModelScope.launch {
+            _state.value = AssessmentState.Loading
             try {
-                val responses = mutableListOf<AssessmentResponse>()
-                for (req in requests) {
-                    val r = repository.createAssessment(token, req)
-                    responses.add(r)
+                requests.forEach { req ->
+                    repository.createAssessment(token,req)
                 }
-                _state.value = AssessmentState.Success(responses)
+                val summary = repository.getSummary(token)
+                _state.value = AssessmentState.Success(summary)
             } catch (e: Exception) {
                 _state.value = AssessmentState.Error(e.message ?: "Erro ao enviar avaliações")
             }

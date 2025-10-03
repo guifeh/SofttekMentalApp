@@ -24,9 +24,11 @@ fun MainScaffold(
     navController: NavController,
     currentScreen: @Composable () -> Unit,
     isDarkTheme: Boolean,
-    onThemeUpdated: () -> Unit
+    onThemeUpdated: () -> Unit,
+    token: String? = null
 ) {
     val drawerItems = listOf(
+        DrawerItem("Perfil", Icons.Filled.Person, AppScreen.Profile),
         DrawerItem("Check-in Emocional", Icons.Filled.EmojiEmotions, AppScreen.Checkin),
         DrawerItem("Histórico", Icons.Filled.History, AppScreen.History),
         DrawerItem("Avaliação de Riscos", Icons.Filled.Assessment, AppScreen.RiskAssessment),
@@ -46,7 +48,7 @@ fun MainScaffold(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 drawerItems.forEach { item ->
                     NavigationDrawerItem(
                         label = { Text(item.title) },
@@ -57,7 +59,18 @@ fun MainScaffold(
                             if (item.title.contains("Tema")) {
                                 onThemeUpdated()
                             } else {
-                                navController.navigate(item.screen.route)
+                                if (item.screen in listOf(
+                                        AppScreen.Checkin,
+                                        AppScreen.RiskAssessment,
+                                        AppScreen.History,
+                                        AppScreen.Insights,
+                                        AppScreen.Profile
+                                    )
+                                ) {
+                                    navController.navigate("${item.screen.route}/$token")
+                                } else {
+                                    navController.navigate(item.screen.route)
+                                }
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
