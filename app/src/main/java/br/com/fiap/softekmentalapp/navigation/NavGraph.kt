@@ -15,6 +15,7 @@ import br.com.fiap.softekmentalapp.ui.screens.*
 import br.com.fiap.softekmentalapp.viewmodel.AssessmentViewModel
 import br.com.fiap.softekmentalapp.viewmodel.CheckinViewModel
 import br.com.fiap.softekmentalapp.viewmodel.InsightsViewModel
+import com.example.app.ui.screens.RegisterScreen
 
 @Composable
 fun AppNavGraph(
@@ -26,8 +27,40 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "register"
     ) {
+
+        composable("profile/{token}") { backStackEntry ->
+            val token = backStackEntry.arguments?.getString("token")?: ""
+            MainScaffold(
+                navController = navController,
+                isDarkTheme = isDarkTheme,
+                onThemeUpdated = onThemeUpdated,
+                token = token,
+                currentScreen = {
+                    ProfileScreen(
+                        viewModel = viewModel(),
+                        token = token,
+                        onLogout = {
+                            navController.navigate("login"){
+                                popUpTo("profile/{token}"){inclusive = true}
+                            }
+                        }
+                    )
+                }
+            )
+        }
+
+        composable("register") {
+            RegisterScreen(
+                onNavigateToLogin = {
+                    navController.navigate("login") {
+                        popUpTo("register") { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // LOGIN
         composable("login") {
             LoginScreen(
@@ -36,7 +69,8 @@ fun AppNavGraph(
                     navController.navigate("checkin/$token") {
                         popUpTo("login") { inclusive = true }
                     }
-                }
+                },
+                onNavigateToRegister = { navController.navigate("register") }
             )
         }
 

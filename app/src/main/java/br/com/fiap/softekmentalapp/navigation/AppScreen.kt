@@ -10,4 +10,6 @@ sealed class AppScreen(val route: String) {
     object Settings : AppScreen("settings")
 
     object Insights : AppScreen("insights")
+
+    object Profile : AppScreen("profile")
 }

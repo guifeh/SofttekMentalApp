@@ -7,3 +7,22 @@ data class UserResponse(
     val role: String,
     val createdAt: Long
 )
+
+data class UpdateUserRequest(
+    val name: String,
+    val email: String
+)
+
+data class RegisterRequest(
+    val name: String,
+    val email: String,
+    val password: String
+)
+
+data class RegisterResponse(
+    val name: String,
+    val email: String,
+    val id: String,
+    val role: String,
+    val createdAt: Long
+)

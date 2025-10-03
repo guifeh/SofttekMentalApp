@@ -15,7 +15,8 @@ import br.com.fiap.softekmentalapp.viewmodel.AuthViewModel
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel = viewModel(),
-    onLoginSuccess: (String) -> Unit
+    onLoginSuccess: (String) -> Unit,
+    onNavigateToRegister: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -72,7 +73,25 @@ fun LoginScreen(
                     shape = MaterialTheme.shapes.medium
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Não tem uma conta?",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    TextButton(onClick = onNavigateToRegister) {
+                        Text(
+                            text = "Fazer cadastro",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
 
                 Button(
                     onClick = { authViewModel.login(email, password) },
@@ -110,7 +129,7 @@ fun LoginScreen(
                     is AuthState.Error -> {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Erro: ${s.message}",
+                            text = "Erro: Email ou senha inválida",
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium

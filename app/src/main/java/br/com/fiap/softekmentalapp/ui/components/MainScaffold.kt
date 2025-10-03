@@ -33,6 +33,7 @@ fun MainScaffold(
         DrawerItem("Avaliação de Riscos", Icons.Filled.Assessment, AppScreen.RiskAssessment),
         DrawerItem("Suporte", Icons.Filled.Help, AppScreen.Support),
         DrawerItem("Insights", Icons.Filled.Insights, AppScreen.Insights),
+        DrawerItem("Profile", Icons.Filled.Person, AppScreen.Profile),
         DrawerItem(
             if (isDarkTheme) "Tema Claro" else "Tema Escuro",
             if (isDarkTheme) Icons.Filled.LightMode else Icons.Filled.DarkMode,
@@ -62,7 +63,8 @@ fun MainScaffold(
                                         AppScreen.Checkin,
                                         AppScreen.RiskAssessment,
                                         AppScreen.History,
-                                        AppScreen.Insights
+                                        AppScreen.Insights,
+                                        AppScreen.Profile
                                     )
                                 ) {
                                     navController.navigate("${item.screen.route}/$token")

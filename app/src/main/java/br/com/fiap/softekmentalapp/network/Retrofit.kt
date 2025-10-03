@@ -1,6 +1,7 @@
 package br.com.fiap.softekmentalapp.network
 
 import br.com.fiap.softekmentalapp.model.*
+import retrofit2.Response
 import retrofit2.http.*
 
 interface AuthApi {
@@ -12,11 +13,18 @@ interface UserApi {
     @GET("/api/v1/users")
     suspend fun getUsers(@Header("Authorization") token: String): List<UserResponse>
 
-    @GET("/api/v1/users/{id}")
-    suspend fun getUser(
+    @POST("/api/v1/users/register")
+    suspend fun createUsers(@Body request: RegisterRequest): RegisterResponse
+
+    @PUT("/api/v1/users/{id}")
+    suspend fun updateProfile(
+        @Path("id") userId: String,
         @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): UserResponse
+        @Body request: UpdateUserRequest
+    ): Response<UserResponse>
+
+    @GET("/api/v1/users/me")
+    suspend fun getProfile(@Header("Authorization") token: String) : Response<UserResponse>
 }
 
 interface CheckinApi {

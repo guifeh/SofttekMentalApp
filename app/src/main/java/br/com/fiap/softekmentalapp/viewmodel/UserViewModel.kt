@@ -34,18 +34,6 @@ class UserViewModel(
         }
     }
 
-    fun getUser(token: String, id: String) {
-        _state.value = UserState.Loading
-        viewModelScope.launch {
-            try {
-                val user: UserResponse = repository.getUser(token, id)
-                _state.value = UserState.Success(user)
-            } catch (e: Exception) {
-                _state.value = UserState.Error(e.message ?: "Erro ao buscar usuário")
-            }
-        }
-    }
-
     fun resetState() {
         _state.value = UserState.Idle
     }
